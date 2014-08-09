@@ -5,10 +5,17 @@
 
 If the zip-file "repdata_data_activity.zip" does not exist, download and unzip it.
 
-```{r, echo=TRUE}
+
+```r
 # Might need to set this if the language is not English
 Sys.setlocale("LC_ALL", 'en_US.UTF-8')
+```
 
+```
+## [1] "en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/sv_SE.UTF-8"
+```
+
+```r
 library(ggplot2)
 library(scales)
 library(plyr)
@@ -24,13 +31,12 @@ if (!file.exists(filename)){
 
 # Read file
 dataset <- read.csv("activity.csv")
-
 ```
 5-min intervals are encoded as hour and minute, so to plot this nicely we need to change this.
 Make sure all elements have four characters. Prepend with 0s if necessary. For example 0015 is just printed as 00. Do this three times, for strings of length 1,2 and 3. There are no 0 length strings, and strings of length 4 are already in the correct format.
 
-```{r, echo=TRUE}
 
+```r
  dataset$date <- as.Date(dataset$date)
 
 # Convert interval to character
@@ -58,23 +64,39 @@ dataset$interval_char  <- NULL
 
 ## What is mean total number of steps taken per day?
 
-```{r, fig.width=12, fig.height=6, echo=TRUE}
+
+```r
 dataperday <- aggregate(data=dataset,steps~date, FUN=sum)
 
 ggplot(data=dataperday, aes(x=steps)) + 
 	geom_histogram(binwidth=1000, fill="orange", color="black") +
 	xlab("Number of steps per day") +
 	ylab("Number of days")
+```
 
+![plot of chunk unnamed-chunk-3](figure/unnamed-chunk-3.png) 
+
+```r
 mean(dataperday$steps)
+```
+
+```
+## [1] 10766
+```
+
+```r
 median(dataperday$steps)
+```
+
+```
+## [1] 10765
 ```
 
 
 ## What is the average daily activity pattern?
 
-```{r, fig.width=12, fig.height=6, echo=TRUE}
 
+```r
 intervalagg <- aggregate(data=dataset,steps~interval_corrected, FUN=mean)
 
 ggplot(data=intervalagg, aes(x=interval_corrected, y=steps)) + 
@@ -82,14 +104,23 @@ ggplot(data=intervalagg, aes(x=interval_corrected, y=steps)) +
 	xlab("Time of day") +
 	ylab("Number of steps per 5 minute period") +
 	scale_x_datetime(labels = date_format("%H:%M"))
-```	
+```
+
+![plot of chunk unnamed-chunk-4](figure/unnamed-chunk-4.png) 
 
 ## Imputing missing values
 
 
-```{r, fig.width=12, fig.height=6, echo=TRUE}
- sum(is.na(dataset$steps))
 
+```r
+ sum(is.na(dataset$steps))
+```
+
+```
+## [1] 2304
+```
+
+```r
 # Add ID column since plyr is gpoing to reorder stuff by group
 dataset$id <- seq_along(dataset$steps)
 
@@ -115,9 +146,24 @@ ggplot(data=dataperday, aes(x=steps)) +
 	geom_histogram(binwidth=1000, fill="orange", color="black") +
 	xlab("Number of steps per day") +
 	ylab("Number of days")
+```
 
+![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-5.png) 
+
+```r
 mean(dataperday$steps)
+```
+
+```
+## [1] 10766
+```
+
+```r
 median(dataperday$steps)
+```
+
+```
+## [1] 10765
 ```
 
 ## Are there differences in activity patterns between weekdays and weekends?
@@ -128,8 +174,8 @@ weekdays gives locale specific output. 6 is Saturday, 0 is Sunday.
 Redo the aggregation, but add the "daytype" so that we do the aggregation on both interval_corrected
 and daytype. 
 
-```{r, fig.width=12, fig.height=6, echo=TRUE}
 
+```r
 dataset_filled$daytype <- "Weekday"
 dataset_filled[
 	as.POSIXlt(dataset_filled$date)$wday == 6 | as.POSIXlt(dataset_filled$date)$wday == 0,
@@ -144,5 +190,6 @@ ggplot(data=intervalagg ) +
 	ylab("Number of steps per 5 minute period") +
 	scale_x_datetime(labels = date_format("%H:%M")) +
 	facet_grid(daytype~.)
-
 ```
+
+![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-6.png) 
