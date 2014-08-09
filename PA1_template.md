@@ -71,7 +71,9 @@ dataperday <- aggregate(data=dataset,steps~date, FUN=sum)
 ggplot(data=dataperday, aes(x=steps)) + 
 	geom_histogram(binwidth=1000, fill="orange", color="black") +
 	xlab("Number of steps per day") +
-	ylab("Number of days")
+	ylab("Number of days")+
+	scale_x_continuous(breaks=seq(0,max(dataperday$steps)+1000,by=1000))+
+	scale_y_continuous(breaks=pretty_breaks(n=10))
 ```
 
 ![plot of chunk unnamed-chunk-3](figure/unnamed-chunk-3.png) 
@@ -103,10 +105,21 @@ ggplot(data=intervalagg, aes(x=interval_corrected, y=steps)) +
 	geom_line() +
 	xlab("Time of day") +
 	ylab("Number of steps per 5 minute period") +
-	scale_x_datetime(labels = date_format("%H:%M"))
+	scale_x_datetime(labels = date_format("%H:%M"), breaks="1 hour") +
+	scale_y_continuous(breaks=pretty_breaks(n=10)) +
+	geom_point(data=intervalagg[intervalagg$steps == max(intervalagg$steps),], aes(x=interval_corrected, y=steps), color="red",size=4)
 ```
 
 ![plot of chunk unnamed-chunk-4](figure/unnamed-chunk-4.png) 
+
+```r
+# Which interval contains the maximum number of steps
+strftime(intervalagg[intervalagg$steps == max(intervalagg$steps),"interval_corrected"],format="%H:%M")
+```
+
+```
+## [1] "08:35"
+```
 
 ## Imputing missing values
 
@@ -145,7 +158,9 @@ dataperday <- aggregate(data=dataset_filled,steps~date, FUN=sum)
 ggplot(data=dataperday, aes(x=steps)) + 
 	geom_histogram(binwidth=1000, fill="orange", color="black") +
 	xlab("Number of steps per day") +
-	ylab("Number of days")
+	ylab("Number of days") +
+	scale_x_continuous(breaks=seq(0,max(dataperday$steps)+1000,by=1000))+
+	scale_y_continuous(breaks=pretty_breaks(n=10))
 ```
 
 ![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-5.png) 
@@ -188,7 +203,8 @@ ggplot(data=intervalagg ) +
 	geom_line(aes(x=interval_corrected, y=steps)) +
 	xlab("Time of day") +
 	ylab("Number of steps per 5 minute period") +
-	scale_x_datetime(labels = date_format("%H:%M")) +
+	scale_y_continuous(breaks=pretty_breaks(n=10)) +
+	scale_x_datetime(labels = date_format("%H:%M"), breaks="1 hour") +
 	facet_grid(daytype~.)
 ```
 
